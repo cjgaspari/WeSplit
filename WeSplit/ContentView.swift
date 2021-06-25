@@ -8,12 +8,17 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var name = ""
+    let students = ["Mike", "CJ", "Brit"]
+    @State private var selectedStudent = 0
 
     var body: some View {
-        Form {
-            TextField("Enter name", text: $name)
-            Text("Hello \(name)")
+        VStack {
+            Picker("Select your person", selection: $selectedStudent) {
+                ForEach(0 ..< students.count) { student in
+                    Text(self.students[student])
+                }
+            }
+            Text("You chose: \(students[selectedStudent])")
         }
     }
 }
