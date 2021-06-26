@@ -20,19 +20,29 @@ struct ContentView: View {
                 Section {
                     TextField("Amount", text: $checkAmount)
                         .keyboardType(.decimalPad)
-                    
                     Picker("Number of people", selection: $numberOfPeople) {
-                        ForEach(2 ..< 100) {
-                            Text("\($0) people")
+                        ForEach(2 ..< 100) { people in
+                            Text("\(people) people")
                         }
                     }
+                }
+                
+                //Section header is neat
+                Section(header: Text("How much would you like to tip?")) {
+                    Picker("Tip %", selection: $tipPercentage) {
+                        ForEach(0 ..< tipPercentages.count) { percentage in
+                            Text("\(self.tipPercentages[percentage])%")
+                        }
+                    }
+                    //Using the SegmentedPickerStyle offers nice inline choices 
+                    .pickerStyle(SegmentedPickerStyle())
                 }
                 
                 Section {
                     Text("$\(checkAmount)")
                 }
             }
-            //Always strange how the navBarTitle goes within the NavigationView property 
+            //Always strange how the navBarTitle goes within the NavigationView property
             .navigationBarTitle("WeSplit")
         }
         
