@@ -8,23 +8,56 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var checkAmount = ""
-    @State private var numberOfPeople = 2
+    @State private var checkAmount: Double?
+    @State private var numberOfPeople: Double?
     @State private var tipPercentage = 2
-    
+
     let tipPercentages = [10, 15, 20, 25, 0]
+    
+    private var currencyFormatter: NumberFormatter = {
+            let f = NumberFormatter()
+            // allow no currency symbol, extra digits, etc
+            f.isLenient = true
+            f.numberStyle = .currency
+            return f
+        }()
+    
+    var total: Double {
+        let tipSelection = Double(tipPercentages[tipPercentage])
+        let orderAmount = Double(checkAmount ?? 0)
+        
+        let tipValue = orderAmount/100 * tipSelection
+        let total = orderAmount + tipValue
+
+        return total
+    }
+    
+    var totalPerPerson: Double {
+        //calculate total per person
+        let peopleCount = Double(numberOfPeople ?? 0)
+        
+        if(peopleCount > 0) {
+            return total/peopleCount
+        }
+        
+        return 0
+    }
     
     var body: some View {
         NavigationView {
             Form {
-                Section {
-                    TextField("Amount", text: $checkAmount)
+                Section (header: Text("Amount")){
+                    //Switched TextField from "text" to "value" and using the currencyFormatter
+                    //Found via https://github.com/nsscreencast/397-swiftui-tip-calculator/blob/master/TipCalculator/TipCalculator/ContentView.swift
+                    //I didnt like having the data stored as text, to be converted.
+                    //This allows to store the data as expected, as optional Double
+                    TextField("$0.00", value: $checkAmount, formatter: currencyFormatter)
                         .keyboardType(.decimalPad)
-                    Picker("Number of people", selection: $numberOfPeople) {
-                        ForEach(2 ..< 100) { people in
-                            Text("\(people) people")
-                        }
-                    }
+                }
+                
+                Section(header: Text("Number of people")) {
+                    TextField("2", value: $numberOfPeople, formatter: NumberFormatter())
+                        .keyboardType(.numberPad)
                 }
                 
                 //Section header is neat
@@ -34,12 +67,17 @@ struct ContentView: View {
                             Text("\(self.tipPercentages[percentage])%")
                         }
                     }
-                    //Using the SegmentedPickerStyle offers nice inline choices 
+                    //Using the SegmentedPickerStyle offers nice inline choices
                     .pickerStyle(SegmentedPickerStyle())
                 }
                 
-                Section {
-                    Text("$\(checkAmount)")
+                Section (header: Text("Check total:")) {
+                    Text("$\(total, specifier: "%.2f")")
+                }
+                
+                Section (header: Text("Amount per person")){
+                    Text("$\(totalPerPerson, specifier: "%.2f")")
+                        .bold()
                 }
             }
             //Always strange how the navBarTitle goes within the NavigationView property
